@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="الصيدلية المجانية: طلب الدواء والتبرع به، الاستفسار عن وصفة، خدمة منزلية، والتبرع بالدم.">
+<title>الصيدلية المجانية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Noto+Kufi+Arabic:wght@600;800&display=swap">
+<style>
+/* Layout: RTL single-column app; five tabs on top (wrap to two rows on phones); every tab = one form that ends in a ready WhatsApp message */
+:root {
+  --bg: #F3F7F6;
+  --surface: #FFFFFF;
+  --fg: #14302E;
+  --muted: #55706D;
+  --line: #D5E2DF;
+  --accent: #0B7A68;
+  --accent-fg: #FFFFFF;
+  --accent-soft: #DDF1EC;
+  --warn-bg: #FFF3D6;
+  --warn-fg: #6B4A00;
+  --danger: #B3321F;
+  --blood: #B3321F;
+  --font-display: "Noto Kufi Arabic", "Tajawal", system-ui, sans-serif;
+  --font-body: "Tajawal", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1B1A; --surface: #142927; --fg: #E4F1EE; --muted: #9DB8B4; --line: #27413E;
+    --accent: #3FC1A8; --accent-fg: #06221D; --accent-soft: #123530;
+    --warn-bg: #3A2E0C; --warn-fg: #F3D58A; --danger: #FF8E7C; --blood: #FF8E7C; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1B1A; --surface: #142927; --fg: #E4F1EE; --muted: #9DB8B4; --line: #27413E;
+  --accent: #3FC1A8; --accent-fg: #06221D; --accent-soft: #123530;
+  --warn-bg: #3A2E0C; --warn-fg: #F3D58A; --danger: #FF8E7C; --blood: #FF8E7C; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.65; }
+.app {
+  max-width: 680px; margin: 0 auto;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 20px;
+}
+header h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; margin: 0; line-height: 1.3; color: var(--accent); }
+header p { margin: 4px 0 0; color: var(--muted); }
+.tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; }
+.tab {
+  font: inherit; font-family: var(--font-display); font-weight: 600; font-size: .9rem;
+  padding: 12px 6px; border-radius: 10px; border: 1.5px solid var(--line);
+  background: var(--surface); color: var(--fg); cursor: pointer; min-width: 0; line-height: 1.4;
+}
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.tab:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+section[role="tabpanel"] { display: flex; flex-direction: column; gap: 16px; }
+section[hidden] { display: none; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+h2 { font-family: var(--font-display); font-size: 1.15rem; margin: 0; font-weight: 600; }
+h3 { font-family: var(--font-display); font-size: 1rem; margin: 0; font-weight: 600; }
+.lead { margin: 0; color: var(--muted); }
+label { display: flex; flex-direction: column; gap: 6px; font-weight: 500; font-size: .95rem; }
+input, select, textarea {
+  font: inherit; color: var(--fg); background: var(--bg); border: 1.5px solid var(--line);
+  border-radius: 10px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+textarea { min-height: 100px; resize: vertical; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+.btn {
+  font: inherit; font-family: var(--font-display); font-weight: 600; background: var(--accent); color: var(--accent-fg);
+  border: 0; border-radius: 10px; padding: 12px 18px; cursor: pointer; align-self: flex-start; text-decoration: none; display: inline-block;
+}
+.btn.alt { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.notice { background: var(--warn-bg); color: var(--warn-fg); border-radius: 10px; padding: 12px 14px; font-size: .93rem; }
+.notice ul { margin: 6px 0 0; padding-inline-start: 20px; }
+.check { flex-direction: row; align-items: flex-start; gap: 10px; font-weight: 400; font-size: .9rem; }
+.check input { width: 20px; height: 20px; margin-top: 4px; flex: none; }
+.msg { border-radius: 10px; padding: 14px; background: var(--accent-soft); font-size: .95rem; display: flex; flex-direction: column; gap: 10px; }
+.msg[hidden] { display: none; }
+.msg pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .88rem; background: var(--surface); border-radius: 8px; padding: 10px 12px; }
+.msg .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.err { color: var(--danger); font-size: .88rem; min-height: 1.2em; }
+.list { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.item { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.sos { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.sos span { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-variant-numeric: tabular-nums; }
+.chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.chips legend { font-weight: 500; font-size: .95rem; padding: 0; margin-bottom: 8px; }
+.chip { position: relative; display: block; }
+.chip input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; }
+.chip span {
+  display: block; text-align: center; padding: 12px 0; border: 1.5px solid var(--line); border-radius: 10px;
+  font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; direction: ltr; background: var(--bg);
+}
+.chip input:checked + span { background: var(--blood); border-color: var(--blood); color: #fff; }
+.chip input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+footer { color: var(--muted); font-size: .85rem; text-align: center; }
+</style>
+
+<style>html{color-scheme:light dark}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<div class="app" dir="rtl" lang="ar">
+  <header>
+    <h1>الصيدلية المجانية</h1>
+    <p>دواء ومستلزمات طبية وخدمات منزلية وتبرّع بالدم، في مكان واحد.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="الخدمات">
+    <button class="tab" role="tab" id="t-req" aria-controls="p-req" aria-selected="true">أطلب دواء</button>
+    <button class="tab" role="tab" id="t-don" aria-controls="p-don" aria-selected="false">أتبرّع</button>
+    <button class="tab" role="tab" id="t-ask" aria-controls="p-ask" aria-selected="false">استفسار عن وصفة</button>
+    <button class="tab" role="tab" id="t-home" aria-controls="p-home" aria-selected="false">خدمة منزلية</button>
+    <button class="tab" role="tab" id="t-blood" aria-controls="p-blood" aria-selected="false">التبرّع بالدم</button>
+  </div>
+
+  <!-- 1: request medicine -->
+  <section role="tabpanel" id="p-req" aria-labelledby="t-req">
+    <form class="panel" id="f-req" novalidate>
+      <h2>أطلب دواء أو مستلزمًا طبيًا</h2>
+      <label for="r-name">اسم الدواء أو المستلزم
+        <input id="r-name" placeholder="كما هو مكتوب على العلبة">
+      </label>
+      <div class="row">
+        <label for="r-qty">الكمية
+          <input id="r-qty" placeholder="مثال: علبتان">
+        </label>
+        <label for="r-place">الولاية / البلدية
+          <input id="r-place" placeholder="مثال: الأغواط">
+        </label>
+      </div>
+      <div class="row">
+        <label for="r-urg">مدى الاستعجال
+          <select id="r-urg">
+            <option>عادي</option>
+            <option>مستعجل (خلال أيام)</option>
+            <option>عاجل جدًا (اليوم)</option>
+          </select>
+        </label>
+        <label for="r-phone">رقم هاتفك
+          <input id="r-phone" type="tel" inputmode="tel" placeholder="0555 00 00 00">
+        </label>
+      </div>
+      <div class="notice">الأدوية التي تُصرف بوصفة لا تُسلَّم إلا مع وصفة سارية. للحالات الطارئة اتصل بالإسعاف 115 أو الحماية المدنية 14.</div>
+      <label class="check" for="r-ok"><input id="r-ok" type="checkbox"> أوافق على وصول بياناتي إلى مسؤول الصيدلية المجانية عبر واتساب للتواصل معي.</label>
+      <div class="err" id="e-req" role="alert"></div>
+      <button class="btn" type="submit">تجهيز الطلب</button>
+      <div class="msg" id="m-req" hidden></div>
+    </form>
+  </section>
+
+  <!-- 2: donate -->
+  <section role="tabpanel" id="p-don" aria-labelledby="t-don" hidden>
+    <form class="panel" id="f-don" novalidate>
+      <h2>أريد التبرّع</h2>
+      <label for="d-cat">نوع التبرّع
+        <select id="d-cat">
+          <option>دواء</option>
+          <option>كرسي متحرك</option>
+          <option>حفاضات</option>
+          <option>جهاز أو مستلزم طبي (عكاز، جهاز قياس...)</option>
+          <option>أخرى</option>
+        </select>
+      </label>
+      <label for="d-name">الاسم أو الوصف
+        <input id="d-name" placeholder="مثال: باراسيتامول 500 ملغ، كرسي متحرك قابل للطي">
+      </label>
+      <div class="row">
+        <label for="d-qty">الكمية
+          <input id="d-qty" placeholder="مثال: 3 علب">
+        </label>
+        <label for="d-place">الولاية / البلدية
+          <input id="d-place" placeholder="مثال: الأغواط">
+        </label>
+      </div>
+      <label for="d-exp" id="l-exp">تاريخ انتهاء الصلاحية
+        <input id="d-exp" type="date">
+      </label>
+      <label for="d-phone">رقم هاتفك
+        <input id="d-phone" type="tel" inputmode="tel" placeholder="0555 00 00 00">
+      </label>
+      <div class="notice" id="d-notice">
+        شروط قبول الأدوية:
+        <ul>
+          <li>العلبة مغلقة وغير مفتوحة، وفي غلافها الأصلي.</li>
+          <li>صلاحيتها لا تقل عن ثلاثة أشهر.</li>
+          <li>لا تُقبل الأدوية التي تحتاج تبريدًا أو المؤثرات العقلية.</li>
+        </ul>
+      </div>
+      <label class="check" for="d-ok"><input id="d-ok" type="checkbox"> أوافق على وصول بياناتي إلى مسؤول الصيدلية المجانية عبر واتساب للتواصل معي.</label>
+      <div class="err" id="e-don" role="alert"></div>
+      <button class="btn" type="submit">تجهيز التبرّع</button>
+      <div class="msg" id="m-don" hidden></div>
+    </form>
+  </section>
+
+  <!-- 3: prescription question -->
+  <section role="tabpanel" id="p-ask" aria-labelledby="t-ask" hidden>
+    <form class="panel" id="f-ask" novalidate>
+      <h2>استفسار عن وصفة</h2>
+      <p class="lead">اسأل عن طريقة أخذ دواء أو وقته أو تعارضه مع دواء آخر. يجيب عنك شخص مختص، وليس البرنامج.</p>
+      <label for="a-drug">اسم الدواء (اختياري)
+        <input id="a-drug" placeholder="كما هو مكتوب على العلبة">
+      </label>
+      <div class="row">
+        <label for="a-who">السؤال عن
+          <select id="a-who">
+            <option>شخص بالغ</option>
+            <option>طفل</option>
+            <option>رضيع</option>
+            <option>حامل أو مرضعة</option>
+            <option>مسنّ</option>
+          </select>
+        </label>
+        <label for="a-phone">رقم هاتفك
+          <input id="a-phone" type="tel" inputmode="tel" placeholder="0555 00 00 00">
+        </label>
+      </div>
+      <label for="a-q">سؤالك
+        <textarea id="a-q" placeholder="مثال: الطبيب كتب لي دواء ثلاث مرات في اليوم، هل آخذه قبل الأكل أم بعده؟"></textarea>
+      </label>
+      <div class="notice">لا تكتب رقم بطاقتك أو عنوانك في السؤال.</div>
+      <label class="check" for="a-ok"><input id="a-ok" type="checkbox"> أوافق على وصول بياناتي إلى مسؤول الصيدلية المجانية عبر واتساب للتواصل معي.</label>
+      <div class="err" id="e-ask" role="alert"></div>
+      <button class="btn" type="submit">تجهيز السؤال</button>
+      <div class="msg" id="m-ask" hidden></div>
+    </form>
+    <div class="panel">
+      <h3>قبل أن تسأل</h3>
+      <ul class="list">
+        <li class="item">الجرعة المكتوبة في الوصفة يحددها طبيبك. لا تغيّرها ولا توقف الدواء قبل استشارته.</li>
+        <li class="item">ورقة الشرح داخل العلبة تذكر الجرعة وتعليمات الأخذ والتحذيرات.</li>
+        <li class="item">ظهرت أعراض شديدة بعد الدواء (صعوبة تنفس، تورم الوجه، إغماء)؟ اتصل فورًا:
+          <div class="sos"><span>الإسعاف 115</span><span>الحماية المدنية 14</span></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4: home service -->
+  <section role="tabpanel" id="p-home" aria-labelledby="t-home" hidden>
+    <form class="panel" id="f-home" novalidate>
+      <h2>أطلب خدمة منزلية</h2>
+      <label for="h-svc">الخدمة
+        <select id="h-svc">
+          <option>حقنة</option>
+          <option>تغيير ضمادات</option>
+          <option>سحب دم (تحاليل)</option>
+          <option>حجامة</option>
+          <option>أخرى</option>
+        </select>
+      </label>
+      <div class="row">
+        <label for="h-name">اسم المريض
+          <input id="h-name" placeholder="الاسم الأول يكفي">
+        </label>
+        <label for="h-phone">رقم هاتفك
+          <input id="h-phone" type="tel" inputmode="tel" placeholder="0555 00 00 00">
+        </label>
+      </div>
+      <label for="h-place">البلدية والحي
+        <input id="h-place" placeholder="مثال: الأغواط، حي 100 مسكن">
+      </label>
+      <label for="h-when">الموعد المناسب
+        <input id="h-when" placeholder="مثال: غدًا صباحًا">
+      </label>
+      <label for="h-notes">ملاحظات (اختياري)
+        <textarea id="h-notes" placeholder="مثال: اسم الدواء المراد حقنه، أو وصف الجرح"></textarea>
+      </label>
+      <div class="notice">للحقن اذكر اسم الدواء وأحضر وصفة الطبيب. العنوان الدقيق يُعطى للمسؤول عند التواصل، لا تكتبه هنا.</div>
+      <label class="check" for="h-ok"><input id="h-ok" type="checkbox"> أوافق على وصول بياناتي إلى مسؤول الصيدلية المجانية عبر واتساب للتواصل معي.</label>
+      <div class="err" id="e-home" role="alert"></div>
+      <button class="btn" type="submit">تجهيز الطلب</button>
+      <div class="msg" id="m-home" hidden></div>
+    </form>
+  </section>
+
+  <!-- 5: blood donation -->
+  <section role="tabpanel" id="p-blood" aria-labelledby="t-blood" hidden>
+    <form class="panel" id="f-blood" novalidate>
+      <h2>أريد التبرّع بالدم</h2>
+      <fieldset class="chips">
+        <legend>اختر فصيلة دمك</legend>
+        <label class="chip"><input type="radio" name="bt" value="A+"><span>A+</span></label>
+        <label class="chip"><input type="radio" name="bt" value="A-"><span>A-</span></label>
+        <label class="chip"><input type="radio" name="bt" value="B+"><span>B+</span></label>
+        <label class="chip"><input type="radio" name="bt" value="B-"><span>B-</span></label>
+        <label class="chip"><input type="radio" name="bt" value="AB+"><span>AB+</span></label>
+        <label class="chip"><input type="radio" name="bt" value="AB-"><span>AB-</span></label>
+        <label class="chip"><input type="radio" name="bt" value="O+"><span>O+</span></label>
+        <label class="chip"><input type="radio" name="bt" value="O-"><span>O-</span></label>
+      </fieldset>
+      <div class="row">
+        <label for="b-name">الاسم
+          <input id="b-name" placeholder="الاسم الأول يكفي">
+        </label>
+        <label for="b-phone">رقم هاتفك
+          <input id="b-phone" type="tel" inputmode="tel" placeholder="0555 00 00 00">
+        </label>
+      </div>
+      <div class="row">
+        <label for="b-age">العمر
+          <input id="b-age" type="number" inputmode="numeric" min="1" max="99">
+        </label>
+        <label for="b-weight">الوزن (كغ)
+          <input id="b-weight" type="number" inputmode="numeric" min="1" max="250">
+        </label>
+      </div>
+      <div class="row">
+        <label for="b-place">الولاية / البلدية
+          <input id="b-place" placeholder="مثال: الأغواط">
+        </label>
+        <label for="b-last">آخر تبرّع بالدم (إن وجد)
+          <input id="b-last" type="date">
+        </label>
+      </div>
+      <div class="notice">
+        شروط عامة للتبرّع:
+        <ul>
+          <li>العمر من 18 إلى 65 سنة، والوزن 50 كغ فما فوق.</li>
+          <li>أن تكون بصحة جيدة يوم التبرّع.</li>
+          <li>القرار النهائي لمركز حقن الدم بعد الفحص الطبي.</li>
+        </ul>
+      </div>
+      <label class="check" for="b-ok"><input id="b-ok" type="checkbox"> أوافق على وصول بياناتي إلى مسؤول الصيدلية المجانية عبر واتساب للتواصل معي.</label>
+      <div class="err" id="e-blood" role="alert"></div>
+      <button class="btn" type="submit">تجهيز التسجيل</button>
+      <div class="msg" id="m-blood" hidden></div>
+    </form>
+  </section>
+
+  <footer>كل نموذج يُجهّز رسالة جاهزة، وتصل إلى المسؤول بعد أن ترسلها أنت من واتساب.</footer>
+</div>
+
+<script>
+(function () {
+  /* رقم واتساب المسؤول بالصيغة الدولية وبأرقام فقط، مثال الجزائر: 213555000000 */
+  var WHATSAPP = "213669747675";
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function val(id) { return $(id).value.trim(); }
+  function validPhone(v) { return /^[0-9+\s().-]{9,16}$/.test(v) && v.replace(/\D/g, "").length >= 9; }
+
+  /* tabs */
+  var tabs = document.querySelectorAll(".tab");
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.setAttribute("aria-selected", on ? "true" : "false");
+        $(x.getAttribute("aria-controls")).hidden = !on;
+      });
+    });
+  });
+
+  /* ready-to-send WhatsApp message */
+  function deliver(boxId, title, pairs) {
+    var lines = ["*الصيدلية المجانية: " + title + "*"];
+    pairs.forEach(function (p) { if (p[1]) lines.push(p[0] + ": " + p[1]); });
+    var text = lines.join("\n");
+    var box = $(boxId);
+    var wa = WHATSAPP ? "https://wa.me/" + WHATSAPP.replace(/\D/g, "") + "?text=" + encodeURIComponent(text) : "";
+    box.innerHTML =
+      "<div>جهّزنا رسالتك، ولم تُرسل بعد. " + (wa ? "اضغط «فتح واتساب» ثم اضغط زر الإرسال هناك." : "انسخ النص وأرسله إلى المسؤول على واتساب.") + "</div>" +
+      "<pre>" + esc(text) + "</pre>" +
+      '<div class="acts">' + (wa ? '<a class="btn" href="' + wa + '" target="_blank" rel="noopener">فتح واتساب</a>' : "") +
+      '<button type="button" class="btn alt copy">نسخ النص</button></div>';
+    box.hidden = false;
+    box.querySelector(".copy").addEventListener("click", function (e) {
+      var b = e.currentTarget, pre = box.querySelector("pre");
+      function fallback() {
+        var r = document.createRange(); r.selectNodeContents(pre);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        b.textContent = "حدّد النص وانسخه";
+      }
+      try {
+        navigator.clipboard.writeText(text).then(function () { b.textContent = "تم النسخ"; }, fallback);
+      } catch (err) { fallback(); }
+    });
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function wire(key, title, check, collect, after) {
+    $("f-" + key).addEventListener("submit", function (e) {
+      e.preventDefault();
+      $("m-" + key).hidden = true;
+      var problem = check();
+      if (!problem && !$(key[0] + "-ok").checked) problem = "وافق على إرسال بياناتك للمسؤول لنتمكن من التواصل معك.";
+      $("e-" + key).textContent = problem || "";
+      if (problem) return;
+      deliver("m-" + key, title, collect());
+      if (after) after();
+    });
+  }
+
+  /* request */
+  wire("req", "طلب دواء",
+    function () {
+      if (!val("r-name") || !val("r-place")) return "اكتب اسم الدواء أو المستلزم والولاية.";
+      if (!validPhone(val("r-phone"))) return "اكتب رقم هاتف صحيح.";
+      return "";
+    },
+    function () { return [["الدواء/المستلزم", val("r-name")], ["الكمية", val("r-qty")], ["المكان", val("r-place")], ["الاستعجال", $("r-urg").value], ["الهاتف", val("r-phone")]]; }
+  );
+
+  /* donate */
+  function syncExp() {
+    var med = $("d-cat").value === "دواء";
+    $("l-exp").hidden = !med; $("d-notice").hidden = !med;
+  }
+  $("d-cat").addEventListener("change", syncExp); syncExp();
+  wire("don", "تبرّع",
+    function () {
+      if (!val("d-name") || !val("d-place")) return "اكتب الوصف والولاية.";
+      if ($("d-cat").value === "دواء") {
+        var exp = val("d-exp");
+        if (!exp) return "اكتب تاريخ انتهاء صلاحية الدواء.";
+        var limit = new Date(); limit.setMonth(limit.getMonth() + 3);
+        if (new Date(exp) < limit) return "صلاحية الدواء أقل من ثلاثة أشهر، لذلك لا نقبله. تخلّص منه عند أقرب صيدلية.";
+      }
+      if (!validPhone(val("d-phone"))) return "اكتب رقم هاتف صحيح.";
+      return "";
+    },
+    function () {
+      var med = $("d-cat").value === "دواء";
+      return [["النوع", $("d-cat").value], ["الوصف", val("d-name")], ["الكمية", val("d-qty")], ["الصلاحية", med ? val("d-exp") : ""], ["المكان", val("d-place")], ["الهاتف", val("d-phone")]];
+    }
+  );
+
+  /* prescription question */
+  wire("ask", "استفسار عن وصفة",
+    function () {
+      if (!val("a-q")) return "اكتب سؤالك.";
+      if (!validPhone(val("a-phone"))) return "اكتب رقم هاتف صحيح.";
+      return "";
+    },
+    function () { return [["الدواء", val("a-drug")], ["السؤال عن", $("a-who").value], ["السؤال", val("a-q")], ["الهاتف", val("a-phone")]]; }
+  );
+
+  /* home service */
+  wire("home", "خدمة منزلية",
+    function () {
+      if (!val("h-name") || !val("h-place")) return "اكتب اسم المريض والبلدية والحي.";
+      if (!validPhone(val("h-phone"))) return "اكتب رقم هاتف صحيح.";
+      return "";
+    },
+    function () { return [["الخدمة", $("h-svc").value], ["المريض", val("h-name")], ["المكان", val("h-place")], ["الموعد", val("h-when")], ["ملاحظات", val("h-notes")], ["الهاتف", val("h-phone")]]; }
+  );
+
+  /* blood donation */
+  function bloodType() { var r = document.querySelector('input[name="bt"]:checked'); return r ? r.value : ""; }
+  wire("blood", "تبرّع بالدم",
+    function () {
+      if (!bloodType()) return "اختر فصيلة دمك.";
+      var age = +val("b-age"), w = +val("b-weight");
+      if (!val("b-name") || !val("b-place")) return "اكتب الاسم والولاية.";
+      if (!age || !w) return "اكتب العمر والوزن.";
+      if (age < 18 || age > 65) return "التبرّع بالدم من عمر 18 إلى 65 سنة.";
+      if (w < 50) return "يشترط وزن 50 كغ فما فوق للتبرّع.";
+      if (!validPhone(val("b-phone"))) return "اكتب رقم هاتف صحيح.";
+      return "";
+    },
+    function () { return [["الفصيلة", bloodType()], ["الاسم", val("b-name")], ["العمر", val("b-age")], ["الوزن", val("b-weight") + " كغ"], ["المكان", val("b-place")], ["آخر تبرّع", val("b-last")], ["الهاتف", val("b-phone")]]; }
+  );
+})();
+</script>
+</body>
+</html>
